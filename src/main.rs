@@ -1,38 +1,51 @@
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::{ self, BufRead };
+use std::convert::TryInto;
 
 fn main() {
-    let numbers = read_lines();
+    let map = read_lines();
+    let _1by1 = find_trees(map, 1, 1);
 
-    let mut valid :u128 = 0;
+    let map = read_lines();
+    let _3by1 = find_trees(map, 3, 1);
 
-    for (_index, item) in numbers.iter().enumerate() {
-        let token: Vec<&str> = item.split(":").collect();
+    let map = read_lines();
+    let _5by1 = find_trees(map, 5, 1);
 
-        let size_with_letter: Vec<&str> = token[0].split(" ").collect();
-        let sizes: Vec<&str> = size_with_letter[0].split("-").collect();
+    let map = read_lines();
+    let _7by1 = find_trees(map, 7, 1);
 
-        let password = token[1].trim();
-        let letter = size_with_letter[1].chars().next().unwrap();
-        let min: usize = sizes[0].parse().unwrap() ;
-        let max: usize = sizes[1].parse().unwrap();
+    let map = read_lines();
+    let _1by2 = find_trees(map, 1, 2);
 
-        if password.chars().count() >= max {
-            let mut valid_count: u8 = 0;
+    println!("{}", _1by1 * _3by1 * _5by1 * _7by1 * _1by2);
+}
 
-            if password.chars().nth(min-1).unwrap() == letter {
-                valid_count += 1;
+fn find_trees(map: Vec<String>, right: u128, down: u128) -> u128 {
+    let mut tree_count = 0;
+    let mut x_pos: u128 = 0;
+    let mut y_pos: u128 = 0;
+
+    for (_size, row) in map.iter().enumerate() {
+        println!("{}", row.len());
+        if y_pos != down {
+            y_pos += 1;
+        } else {
+            y_pos = 0;
+            x_pos += right;
+            if x_pos > (row.len() - 1) as u128 {
+                x_pos = x_pos - (row.len() as u128);
             }
-            if password.chars().nth(max-1).unwrap() == letter {
-                valid_count += 1;
+
+            let position = row.chars().nth((x_pos).try_into().unwrap()).unwrap();
+            if position == '#' {
+                tree_count += 1;
             }
-            if valid_count == 1 {
-                valid += 1;
-            }
+
+            y_pos += 1;
         }
     }
-
-    println!("valid: {}", valid);
+    tree_count
 }
 
 fn read_lines() -> Vec<String> {
